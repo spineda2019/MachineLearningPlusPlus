@@ -65,8 +65,21 @@ template <class M>
 std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix) {
   // write obj to stream
   for (size_t row = 0; row < matrix.rows_; row++) {
+    if (row == 0) {
+      os << std::endl;
+    }
     for (size_t col = 0; col < matrix.columns_; col++) {
-      os << matrix.data_[row][col] << ", ";
+      if (col == 0) {
+        os << "|";
+      }
+
+      os << matrix.data_[row][col];
+
+      if (col != matrix.columns_ - 1) {
+        os << ", ";
+      } else {
+        os << "|";
+      }
     }
     os << std::endl;
   }
