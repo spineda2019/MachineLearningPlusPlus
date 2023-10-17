@@ -1,10 +1,14 @@
 #ifndef LIBMACHINELEARNING_INCLUDE_MATRIX_H
 #define LIBMACHINELEARNING_INCLUDE_MATRIX_H
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 namespace tensor_math {
+/**
+ * @brief 
+ * @tparam T 
+*/
 template <class T>
 class Matrix {
  public:
@@ -14,9 +18,15 @@ class Matrix {
 
   Matrix() : rows_{0}, columns_{0}, data_{std::vector<std::vector<T>>{}} {}
 
+  Matrix(size_t rows, size_t cols)
+      : rows_{rows},
+        columns_{cols},
+        data_{std::vector<std::vector<T>>(rows, std::vector<T>(cols, 0))} {}
+
   size_t GetRows() { return this->rows_; }
 
-  friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix);
+  template <class M>
+  friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
 
  private:
   size_t rows_;
@@ -24,8 +34,15 @@ class Matrix {
   std::vector<std::vector<T>> data_;  // vector of rows
 };
 
-template <class T>
-std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
+/**
+ * @brief 
+ * @tparam M 
+ * @param os 
+ * @param matrix 
+ * @return 
+*/
+template <class M>
+std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix) {
   // write obj to stream
   for (size_t row = 0; row < matrix.rows_; row++) {
     for (size_t col = 0; col < matrix.columns_; col++) {
