@@ -4,20 +4,40 @@
 #include <iostream>
 #include <vector>
 
+#include "MatrixExceptions.h"
+
 namespace tensor_math {
 /**
- * @brief 
- * @tparam T 
-*/
+ * @brief
+ * @tparam T
+ */
 template <class T>
 class Matrix {
  public:
-  Matrix(const std::vector<std::vector<T>>& data);
+  /**
+   * @brief Initialize a matrix with a 2d vector
+   * @param data The 2d Vector to be created
+   */
+  Matrix(const std::vector<std::vector<T>>& data)
+      : rows_{(data[0]).size()}, columns_{data.size()}, data_{data} {
+    size_t matrix_width = (this->data_[0]).size();
+
+    for (const std::vector<T>& row : data) {
+      if (row.size() != matrix_width) {
+        throw BadDataConstructorException();
+      }
+    }
+  }
 
   Matrix(const std::string& file_path);
 
   Matrix() : rows_{0}, columns_{0}, data_{std::vector<std::vector<T>>{}} {}
 
+  /**
+   * @brief Default Initializer of Matrix (fills with all 0s)
+   * @param rows Number of rows in Matrix
+   * @param cols Number of columns in Matrix
+   */
   Matrix(size_t rows, size_t cols)
       : rows_{rows},
         columns_{cols},
@@ -35,12 +55,12 @@ class Matrix {
 };
 
 /**
- * @brief 
- * @tparam M 
- * @param os 
- * @param matrix 
- * @return 
-*/
+ * @brief
+ * @tparam M
+ * @param os
+ * @param matrix
+ * @return
+ */
 template <class M>
 std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix) {
   // write obj to stream
