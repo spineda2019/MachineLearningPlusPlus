@@ -2,6 +2,7 @@
 #define LIBMACHINELEARNING_INCLUDE_MATRIX_H
 
 #include <algorithm>
+#include <numeric>
 #include <iostream>
 #include <vector>
 
@@ -54,6 +55,9 @@ class Matrix {
 
   template <class T>
   friend Matrix<T> operator*(const Matrix<T>& x, float y);
+
+  template <class T>
+  friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
 
  private:
   size_t rows_;
@@ -122,6 +126,27 @@ Matrix<T> operator*(const Matrix<T>& x, float y) {
   }
 
   return Matrix(new_matrix_data);
+}
+
+template <class T>
+Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y) {
+  if (x.data_[0].size() != y.data_.size()) {
+    throw MatrixMultiplicationMismatchException();
+  }
+
+  size_t rows = x.data_.size();
+  size_t columns = y.data_[0].size();
+
+  std::vector<std::vector<T>> result(rows, std::vector<int>(columns));
+
+  for (size_t i = 0; i < rows; i++) {
+    for (size_t j = 0; j < columns; j++) {
+      result[i][j] = std::inner_product(x.data_[i].begin(), x.data_[i].end(),
+                                        y.data_[j].begin(), 0);
+    }
+  }
+
+  return Matrix(result);
 }
 
 }  // namespace tensor_math
