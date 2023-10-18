@@ -141,8 +141,14 @@ Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y) {
 
   for (size_t i = 0; i < rows; i++) {
     for (size_t j = 0; j < columns; j++) {
+      std::vector<T> temp_column(rows);
+
+      // Potential #if _HAS_CXX_20
+      std::transform(y.data_.begin(), y.data_.end(), temp_column.begin(),
+                     [j](const std::vector<T>& y_row) { return y_row[j]; });
+
       result[i][j] = std::inner_product(x.data_[i].begin(), x.data_[i].end(),
-                                        y.data_[j].begin(), 0);
+                                        temp_column.begin(), 0);
     }
   }
 
