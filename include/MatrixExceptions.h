@@ -9,4 +9,12 @@ class BadDataConstructorException : std::exception {
   }
 };
 
+class MatrixMultiplicationMismatchException : std::exception {
+ public:
+  const char* what() {
+    return "Malformed matrix multiplication. Make sure matrices have "
+           "compatible dimensions for multiplication";
+  }
+};
+
 #endif  // LIBMACHINELEARNING_INCLUDE_MATRIXEXCEPTIONS_H
