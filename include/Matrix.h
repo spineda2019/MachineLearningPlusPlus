@@ -1,6 +1,7 @@
 #ifndef LIBMACHINELEARNING_INCLUDE_MATRIX_H
 #define LIBMACHINELEARNING_INCLUDE_MATRIX_H
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -48,6 +49,12 @@ class Matrix {
   template <class M>
   friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
 
+  template <class T>
+  friend Matrix<T> operator*(float x, const Matrix<T>& y);
+
+  template <class T>
+  friend Matrix<T> operator*(const Matrix<T>& x, float y);
+
  private:
   size_t rows_;
   size_t columns_;
@@ -85,6 +92,36 @@ std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix) {
   }
 
   return os;
+}
+
+template <class T>
+Matrix<T> operator*(float x, const Matrix<T>& y) {
+  std::vector<std::vector<T>> new_matrix_data(y.rows_,
+                                              std::vector<T>(y.columns_));
+  // potential parallel execution with
+  // #if _HAS_CXX20
+  for (size_t row = 0; row < y.data_.size(); row++) {
+    std::transform(y.data_[row].begin(), y.data_[row].end(),
+                   new_matrix_data[row].begin(),
+                   [x](T entry) { return entry * static_cast<T>(x); });
+  }
+
+  return Matrix(new_matrix_data);
+}
+
+template <class T>
+Matrix<T> operator*(const Matrix<T>& x, float y) {
+  std::vector<std::vector<T>> new_matrix_data(x.rows_,
+                                              std::vector<T>(x.columns_));
+  // potential parallel execution with
+  // #if _HAS_CXX20
+  for (size_t row = 0; row < x.data_.size(); row++) {
+    std::transform(x.data_[row].begin(), x.data_[row].end(),
+                   new_matrix_data[row].begin(),
+                   [y](T entry) { return entry * static_cast<T>(y); });
+  }
+
+  return Matrix(new_matrix_data);
 }
 
 }  // namespace tensor_math
