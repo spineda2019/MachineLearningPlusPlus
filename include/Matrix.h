@@ -2,8 +2,9 @@
 #define LIBMACHINELEARNING_INCLUDE_MATRIX_H
 
 #include <algorithm>
-#include <numeric>
+#include <execution>
 #include <iostream>
+#include <numeric>
 #include <vector>
 
 #include "MatrixExceptions.h"
@@ -58,6 +59,9 @@ class Matrix {
 
   template <class T>
   friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
+
+  template <class T>
+  friend Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y);
 
  private:
   size_t rows_;
@@ -137,7 +141,7 @@ Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y) {
   size_t rows = x.data_.size();
   size_t columns = y.data_[0].size();
 
-  std::vector<std::vector<T>> result(rows, std::vector<int>(columns));
+  std::vector<std::vector<T>> result(rows, std::vector<T>(columns));
 
   for (size_t i = 0; i < rows; i++) {
     for (size_t j = 0; j < columns; j++) {
@@ -150,6 +154,34 @@ Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y) {
       result[i][j] = std::inner_product(x.data_[i].begin(), x.data_[i].end(),
                                         temp_column.begin(), 0);
     }
+  }
+
+  return Matrix(result);
+}
+
+template <class T>
+Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y) {
+  size_t x_rows = x.data_.size();
+  size_t x_cols = x.data_[0].size();
+
+  size_t y_rows = y.data_.size();
+  size_t y_cols = y.data_[0].size();
+
+  if ((x_rows != y_rows) || (x_cols != y_cols)) {
+    throw MatrixAdditionMismatchException();
+  }
+
+  std::vector<std::vector<T>> result(x_rows, std::vector<int>(x_cols));
+
+  size_t index;
+
+  for (size_t row = 0; row < x_rows; row++) {
+    index = 0;
+    std::transform(x.data_[row].begin(), x.data_[row].end(),
+                   result[row].begin(), [&index, &y, &row](T element) {
+                     index++;
+                     return element + y.data_[row][index - 1];
+                   });
   }
 
   return Matrix(result);
