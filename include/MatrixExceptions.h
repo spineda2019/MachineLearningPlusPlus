@@ -17,4 +17,12 @@ class MatrixMultiplicationMismatchException : std::exception {
   }
 };
 
+class MatrixAdditionMismatchException : std::exception {
+ public:
+  const char* what() {
+    return "Malformed matrix Addition. Make sure matrices have same number of "
+           "rows AND columns";
+  }
+};
+
 #endif  // LIBMACHINELEARNING_INCLUDE_MATRIXEXCEPTIONS_H
