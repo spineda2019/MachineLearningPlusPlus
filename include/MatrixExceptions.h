@@ -25,4 +25,11 @@ class MatrixAdditionMismatchException : std::exception {
   }
 };
 
+class InvalidDeterminantException : std::exception {
+ public:
+  const char* what() {
+    return "Matrix must be square to take its determinant";
+  }
+};
+
 #endif  // LIBMACHINELEARNING_INCLUDE_MATRIXEXCEPTIONS_H
