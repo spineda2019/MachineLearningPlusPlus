@@ -61,64 +61,75 @@ class Matrix {
     std::vector<std::vector<T>> sub_data(this->rows_ - 1,
                                          std::vector<T>(this->columns_ - 1));
 
-    size_t scaler = this->data_[0][column];
-
-    // naive implementation now, look to ptimize...
+    // naive implementation now, look to optimize...
     for (size_t row = 1; row < this->rows_; row++) {
       for (size_t col = 0; col < this->columns_; col++) {
         if (col == column) {
           continue;
         } else if (col < column) {
-          sub_data[row - 1][col] = this->data_[row][col];
+          sub_data[row - 1][col] =
+              this->data_[row][col];
         } else {
-          sub_data[row - 1][col - 1] = this->data_[row][col];
+          sub_data[row - 1][col - 1] =
+              this->data_[row][col];
         }
       }
     }
 
-  return Matrix(sub_data);
-}
+    return Matrix(sub_data);
+  }
 
   /**
    * @brief
    * @return
    */
+  T Det_Dep() const {
+    // TODO: Evaluate return type (T vs double)
+    // DEPCRECATE: Using Laplace Extension is O(n!)
+
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw InvalidDeterminantException();
+    }
+
+    // special case 2x2
+    if (this->rows_ == 2) {
+      return ((this->data_[0][0]) * (this->data_[1][1])) -
+             ((this->data_[0][1]) * (this->data_[1][0]));
+    } else {
+      // sum of Sub(0).Det() Sub(1).Det() etc
+      T det = static_cast<T>(0);
+      for (size_t col = 0; col < this->columns_; col++) {
+        T sub_det = this->SubSquareMatrix(col).Det();
+        det += sub_det * ((col % 2 == 0 ? 1 : -1) * this->data_[0][col]);
+      }
+      return det;
+    }
+  }
+
   T Det() const {
-  // TODO: Evaluate return type (T vs double)
-
-  // Matrix must be a square
-  if (this->rows_ != this->columns_) {
-    throw InvalidDeterminantException();
+    // TODO: Use LU Decomposition
   }
 
-  // special case 2x2
-  if (this->rows_ == 2) {
-    return ((this->data_[0][0]) * (this->data_[1][1])) -
-           ((this->data_[0][1]) * (this->data_[1][0]));
-  } else {
-    // TODO recursion? ?? With Sub Matrix helper?
-  }
-}
+  template <class M>
+  friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
 
-template <class M>
-friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
+  template <class T>
+  friend Matrix<T> operator*(float x, const Matrix<T>& y);
 
-template <class T>
-friend Matrix<T> operator*(float x, const Matrix<T>& y);
+  template <class T>
+  friend Matrix<T> operator*(const Matrix<T>& x, float y);
 
-template <class T>
-friend Matrix<T> operator*(const Matrix<T>& x, float y);
+  template <class T>
+  friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
 
-template <class T>
-friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
+  template <class T>
+  friend Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y);
 
-template <class T>
-friend Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y);
-
-private:
-size_t rows_;
-size_t columns_;
-std::vector<std::vector<T>> data_;  // vector of rows
+ private:
+  size_t rows_;
+  size_t columns_;
+  std::vector<std::vector<T>> data_;  // vector of rows
 };
 
 /**
