@@ -22,7 +22,7 @@ class Matrix {
    * @param data The 2d Vector to be created
    */
   Matrix(const std::vector<std::vector<T>>& data)
-      : rows_{(data[0]).size()}, columns_{data.size()}, data_{data} {
+      : rows_{data.size()}, columns_{(data[0]).size()}, data_{data} {
     size_t matrix_width = (this->data_[0]).size();
 
     for (const std::vector<T>& row : data) {
@@ -46,27 +46,79 @@ class Matrix {
         columns_{cols},
         data_{std::vector<std::vector<T>>(rows, std::vector<T>(cols, 0))} {}
 
-  size_t GetRows() { return this->rows_; }
+  size_t GetRows() const { return this->rows_; }
 
-  template <class M>
-  friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
+  /**
+   * @brief
+   * @return
+   */
+  Matrix<T> SubSquareMatrix(size_t column) const {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw InvalidDeterminantException();
+    }
 
-  template <class T>
-  friend Matrix<T> operator*(float x, const Matrix<T>& y);
+    std::vector<std::vector<T>> sub_data(this->rows_ - 1,
+                                         std::vector<T>(this->columns_ - 1));
 
-  template <class T>
-  friend Matrix<T> operator*(const Matrix<T>& x, float y);
+    size_t scaler = this->data_[0][column];
 
-  template <class T>
-  friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
+    // naive implementation now, look to ptimize...
+    for (size_t row = 1; row < this->rows_; row++) {
+      for (size_t col = 0; col < this->columns_; col++) {
+        if (col == column) {
+          continue;
+        } else if (col < column) {
+          sub_data[row - 1][col] = this->data_[row][col];
+        } else {
+          sub_data[row - 1][col - 1] = this->data_[row][col];
+        }
+      }
+    }
 
-  template <class T>
-  friend Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y);
+  return Matrix(sub_data);
+}
 
- private:
-  size_t rows_;
-  size_t columns_;
-  std::vector<std::vector<T>> data_;  // vector of rows
+  /**
+   * @brief
+   * @return
+   */
+  T Det() const {
+  // TODO: Evaluate return type (T vs double)
+
+  // Matrix must be a square
+  if (this->rows_ != this->columns_) {
+    throw InvalidDeterminantException();
+  }
+
+  // special case 2x2
+  if (this->rows_ == 2) {
+    return ((this->data_[0][0]) * (this->data_[1][1])) -
+           ((this->data_[0][1]) * (this->data_[1][0]));
+  } else {
+    // TODO recursion? ?? With Sub Matrix helper?
+  }
+}
+
+template <class M>
+friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
+
+template <class T>
+friend Matrix<T> operator*(float x, const Matrix<T>& y);
+
+template <class T>
+friend Matrix<T> operator*(const Matrix<T>& x, float y);
+
+template <class T>
+friend Matrix<T> operator*(const Matrix<T>& x, const Matrix<T>& y);
+
+template <class T>
+friend Matrix<T> operator+(const Matrix<T>& x, const Matrix<T>& y);
+
+private:
+size_t rows_;
+size_t columns_;
+std::vector<std::vector<T>> data_;  // vector of rows
 };
 
 /**
