@@ -143,9 +143,9 @@ class Matrix {
   }
 
   /**
-   * @brief 
-   * @return 
-  */
+   * @brief
+   * @return
+   */
   std::vector<Matrix<T>> LU() const {
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
     Matrix<T> upper = Matrix<T>(this->data_);
@@ -156,7 +156,6 @@ class Matrix {
 
     for (size_t col = 0; col < this->columns_ - 1; col++) {
       for (size_t row = col + 1; row < this->rows_; row++) {
-
         T multiplier = upper.data_[row][col] / upper.data_[col][col];
         lower.data_[row][col] = multiplier;
 
@@ -170,6 +169,67 @@ class Matrix {
     results[0] = lower;
     results[1] = upper;
     return results;
+  }
+
+  /**
+   * @brief
+   * @return
+   */
+  Matrix<T> UpperTriangular() const {
+    Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
+    Matrix<T> upper = Matrix<T>(this->data_);
+
+    for (size_t row = 0; row < this->rows_; row++) {
+      lower.data_[row][row] = static_cast<T>(1);
+    }
+
+    for (size_t col = 0; col < this->columns_ - 1; col++) {
+      for (size_t row = col + 1; row < this->rows_; row++) {
+        T multiplier = upper.data_[row][col] / upper.data_[col][col];
+        lower.data_[row][col] = multiplier;
+
+        std::vector<T> scaled = upper.GetScaledRow(col, -1 * multiplier);
+        std::transform(scaled.begin(), scaled.end(), upper.data_[row].begin(),
+                       upper.data_[row].begin(), std::plus<T>());
+      }
+    }
+
+    return upper;
+  }
+
+  /**
+   * @brief
+   * @return
+   */
+  Matrix<T> LowerTriangular() const {
+    Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
+    Matrix<T> upper = Matrix<T>(this->data_);
+
+    for (size_t row = 0; row < this->rows_; row++) {
+      lower.data_[row][row] = static_cast<T>(1);
+    }
+
+    for (size_t col = 0; col < this->columns_ - 1; col++) {
+      for (size_t row = col + 1; row < this->rows_; row++) {
+        T multiplier = upper.data_[row][col] / upper.data_[col][col];
+        lower.data_[row][col] = multiplier;
+
+        std::vector<T> scaled = upper.GetScaledRow(col, -1 * multiplier);
+        std::transform(scaled.begin(), scaled.end(), upper.data_[row].begin(),
+                       upper.data_[row].begin(), std::plus<T>());
+      }
+    }
+
+    return lower;
+  }
+
+  T Det() const {
+    Matrix<T> upper = this->UpperTriangular();
+    T det = 1;
+    for (size_t row = 0; row < upper.rows_; row++) {
+      det *= upper.data_[row][row];
+    }
+    return det;
   }
 
   /**
@@ -228,10 +288,6 @@ class Matrix {
       }
       return det;
     }
-  }
-
-  T Det() const {
-    // TODO: Use LU Decomposition
   }
 
   template <class M>
