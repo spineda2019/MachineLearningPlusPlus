@@ -303,6 +303,14 @@ class Matrix {
     }
   }
 
+  /**
+   * @brief Calculate the inverse of the matrix
+   * @return The inverse of the matrix if it is invertible
+  */
+  Matrix<T> I() {
+
+  }
+
   template <class M>
   friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
 
