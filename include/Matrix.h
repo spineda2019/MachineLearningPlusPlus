@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <vector>
@@ -49,6 +50,129 @@ class Matrix {
   size_t GetRows() const { return this->rows_; }
 
   /**
+   * @brief Scale a selected row by a constant
+   * @param row Row Index
+   * @param scaler Scaler to scale row
+   */
+  void ScaleRow(size_t row, T scaler) {
+    // Potential execution: __IF_HAS_CXX20
+    std::transform(this->data_[row].begin(), this->data_[row].end(),
+                   this->data_[row].begin(),
+                   [&scaler](T& element) { return element * scaler; });
+  }
+
+  /**
+   * @brief
+   * @param row
+   * @param scaler
+   * @return
+   */
+  std::vector<T> GetScaledRow(size_t row, T scaler) const {
+    std::vector<T> to_return(this->columns_);
+
+    std::transform(this->data_[row].begin(), this->data_[row].end(),
+                   to_return.begin(),
+                   [&scaler](const T& element) { return element * scaler; });
+
+    return to_return;
+  }
+
+  /**
+   * @brief
+   * @param row_1
+   * @param row_2
+   * @param destination_row
+   */
+  void AddRows(size_t row_1, size_t row_2, size_t destination_row) {
+    std::transform(this->data_[row_1].begin(), this->data_[row_1].end(),
+                   this->data_[row_2].begin(),
+                   this->data_[destination_row].begin(), std::plus<T>());
+  }
+
+  /**
+   * @brief
+   * @param row_1
+   * @param row_2
+   * @return
+   */
+  std::vector<T> GetAddedRows(size_t row_1, size_t row_2) const {
+    std::vector<T> to_return(this->columns_);
+
+    std::transform(this->data_[row_1].begin(), this->data_[row_1].end(),
+                   this->data_[row_2].begin(), to_return.begin(),
+                   std::plus<T>());
+
+    return to_return;
+  }
+
+  /**
+   * @brief
+   * @param row_1
+   * @param row_2
+   * @param destination_row
+   */
+  void SubtractRows(size_t row_1, size_t row_2, size_t destination_row) {
+    std::transform(this->data_[row_1].begin(), this->data_[row_1].end(),
+                   this->data_[row_2].begin(),
+                   this->data_[destination_row].begin(), std::minus<T>());
+  }
+
+  /**
+   * @brief
+   * @param row_1
+   * @param row_2
+   * @return
+   */
+  std::vector<T> GetSubtractedRows(size_t row_1, size_t row_2) const {
+    std::vector<T> to_return(this->columns_);
+
+    std::transform(this->data_[row_1].begin(), this->data_[row_1].end(),
+                   this->data_[row_2].begin(), to_return.begin(),
+                   std::minus<T>());
+
+    return to_return;
+  }
+
+  /**
+   * @brief
+   * @param row
+   * @param destination
+   */
+  void ReplaceRow(const std::vector<T>& row, size_t destination) {
+    std::copy(row.begin(), row.end(), this->data_[destination.begin()]);
+  }
+
+  /**
+   * @brief 
+   * @return 
+  */
+  std::vector<Matrix<T>> LU() const {
+    Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
+    Matrix<T> upper = Matrix<T>(this->data_);
+
+    for (size_t row = 0; row < this->rows_; row++) {
+      lower.data_[row][row] = static_cast<T>(1);
+    }
+
+    for (size_t col = 0; col < this->columns_ - 1; col++) {
+      for (size_t row = col + 1; row < this->rows_; row++) {
+
+        T multiplier = upper.data_[row][col] / upper.data_[col][col];
+        lower.data_[row][col] = multiplier;
+
+        std::vector<T> scaled = upper.GetScaledRow(col, -1 * multiplier);
+        std::transform(scaled.begin(), scaled.end(), upper.data_[row].begin(),
+                       upper.data_[row].begin(), std::plus<T>());
+      }
+    }
+
+    std::vector<Matrix<T>> results(2);
+    results[0] = lower;
+    results[1] = upper;
+    return results;
+  }
+
+  /**
    * @brief
    * @return
    */
@@ -67,11 +191,9 @@ class Matrix {
         if (col == column) {
           continue;
         } else if (col < column) {
-          sub_data[row - 1][col] =
-              this->data_[row][col];
+          sub_data[row - 1][col] = this->data_[row][col];
         } else {
-          sub_data[row - 1][col - 1] =
-              this->data_[row][col];
+          sub_data[row - 1][col - 1] = this->data_[row][col];
         }
       }
     }
@@ -86,6 +208,7 @@ class Matrix {
   T Det_Dep() const {
     // TODO: Evaluate return type (T vs double)
     // DEPCRECATE: Using Laplace Extension is O(n!)
+    // Improve with LU decomp
 
     // Matrix must be a square
     if (this->rows_ != this->columns_) {
