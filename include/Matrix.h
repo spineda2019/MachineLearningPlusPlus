@@ -10,10 +10,15 @@
 
 #include "MatrixExceptions.h"
 
-namespace tensor_math {
 /**
- * @brief
- * @tparam T
+ * @brief Namespace containing all linear algebra related objects, methods, and
+ * functions
+ */
+namespace tensor_math {
+
+/**
+ * @brief Matrix class for the purposes of linear algebra
+ * @tparam T Numeric Type of matrix elements
  */
 template <class T>
 class Matrix {
@@ -50,7 +55,7 @@ class Matrix {
   size_t GetRows() const { return this->rows_; }
 
   /**
-   * @brief Scale a selected row by a constant
+   * @brief Scale a selected row in place by a constant
    * @param row Row Index
    * @param scaler Scaler to scale row
    */
@@ -62,10 +67,10 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @param row
-   * @param scaler
-   * @return
+   * @brief Extract a scaled row without changing the matrix in place
+   * @param row Desired Row to scale
+   * @param scaler Scaler to scale row
+   * @return Row vector scaled by scaler
    */
   std::vector<T> GetScaledRow(size_t row, T scaler) const {
     std::vector<T> to_return(this->columns_);
@@ -78,10 +83,10 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @param row_1
-   * @param row_2
-   * @param destination_row
+   * @brief Add two rows and store the result in a chosen row in place
+   * @param row_1 First row to be added
+   * @param row_2 Second Row to be added
+   * @param destination_row Destination of row addition
    */
   void AddRows(size_t row_1, size_t row_2, size_t destination_row) {
     std::transform(this->data_[row_1].begin(), this->data_[row_1].end(),
@@ -90,10 +95,11 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @param row_1
-   * @param row_2
-   * @return
+   * @brief Add two rows and receive the row vector without changing anything in
+   * place
+   * @param row_1 First row to be added
+   * @param row_2 Second Row to be added
+   * @return Row vector result of sum
    */
   std::vector<T> GetAddedRows(size_t row_1, size_t row_2) const {
     std::vector<T> to_return(this->columns_);
@@ -134,17 +140,18 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @param row
-   * @param destination
+   * @brief Replace a matrix row with a given row vector
+   * @param row Row to be placed in matrix
+   * @param destination Row index of row that will be replaced
    */
   void ReplaceRow(const std::vector<T>& row, size_t destination) {
     std::copy(row.begin(), row.end(), this->data_[destination.begin()]);
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Compute the LU decomposition of a matrix (must be square)
+   * @return A 2 element vector of Matrices with element 0 being L and element 1
+   * being U
    */
   std::vector<Matrix<T>> LU() const {
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
@@ -172,8 +179,8 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Compute the upper triangular matrix (must be a square matrix)
+   * @return The upper triangular matrix of this matrix's LU decomposition
    */
   Matrix<T> UpperTriangular() const {
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
@@ -198,8 +205,8 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Compute the lower triangular matrix (must be a square matrix)
+   * @return The lower triangular matrix of this matrix's LU decomposition
    */
   Matrix<T> LowerTriangular() const {
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
@@ -223,6 +230,11 @@ class Matrix {
     return lower;
   }
 
+  /**
+   * @brief Calculate the determinant of a matrix (uses the LU decomposition)
+   * @return The determinant of the matrix. Beware infinite values for matrices
+   * that do not have proper determinants
+   */
   T Det() const {
     Matrix<T> upper = this->UpperTriangular();
     T det = 1;
@@ -233,8 +245,8 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Extract a submatrix that excludes the given column and row 0
+   * @return the column to exclude
    */
   Matrix<T> SubSquareMatrix(size_t column) const {
     // Matrix must be a square
@@ -262,8 +274,9 @@ class Matrix {
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Naive laplace extension method of getting the determinant of a
+   * matrix. Ought not to use, this is O(n!)
+   * @return The determinant of the matrix
    */
   T Det_Dep() const {
     // TODO: Evaluate return type (T vs double)
@@ -311,13 +324,6 @@ class Matrix {
   std::vector<std::vector<T>> data_;  // vector of rows
 };
 
-/**
- * @brief
- * @tparam M
- * @param os
- * @param matrix
- * @return
- */
 template <class M>
 std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix) {
   // write obj to stream
