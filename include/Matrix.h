@@ -327,7 +327,12 @@ class Matrix {
    * @brief Calculate the inverse of the matrix
    * @return The inverse of the matrix if it is invertible
    */
-  Matrix<T> I() {}
+  Matrix<T> I() {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw InvalidInversionException();
+    }
+  }
 
   template <class M>
   friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
