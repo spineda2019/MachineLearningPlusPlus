@@ -27,8 +27,13 @@ class MatrixAdditionMismatchException : std::exception {
 
 class InvalidDeterminantException : std::exception {
  public:
+  const char* what() { return "Matrix must be square to take its determinant"; }
+};
+
+class BadLUException : std::exception {
+ public:
   const char* what() {
-    return "Matrix must be square to take its determinant";
+    return "Matrix must be square to take its LU decomposition";
   }
 };
 
