@@ -154,6 +154,11 @@ class Matrix {
    * being U
    */
   std::vector<Matrix<T>> LU() const {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw BadLUException();
+    }
+
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
     Matrix<T> upper = Matrix<T>(this->data_);
 
@@ -183,6 +188,11 @@ class Matrix {
    * @return The upper triangular matrix of this matrix's LU decomposition
    */
   Matrix<T> UpperTriangular() const {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw BadLUException();
+    }
+
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
     Matrix<T> upper = Matrix<T>(this->data_);
 
@@ -209,6 +219,11 @@ class Matrix {
    * @return The lower triangular matrix of this matrix's LU decomposition
    */
   Matrix<T> LowerTriangular() const {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw BadLUException();
+    }
+
     Matrix<T> lower = Matrix<T>(this->rows_, this->columns_);
     Matrix<T> upper = Matrix<T>(this->data_);
 
@@ -236,6 +251,11 @@ class Matrix {
    * that do not have proper determinants
    */
   T Det() const {
+    // Matrix must be a square
+    if (this->rows_ != this->columns_) {
+      throw InvalidDeterminantException();
+    }
+
     Matrix<T> upper = this->UpperTriangular();
     T det = 1;
     for (size_t row = 0; row < upper.rows_; row++) {
@@ -306,10 +326,8 @@ class Matrix {
   /**
    * @brief Calculate the inverse of the matrix
    * @return The inverse of the matrix if it is invertible
-  */
-  Matrix<T> I() {
-
-  }
+   */
+  Matrix<T> I() {}
 
   template <class M>
   friend std::ostream& operator<<(std::ostream& os, const Matrix<M>& matrix);
