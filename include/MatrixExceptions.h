@@ -30,6 +30,11 @@ class InvalidDeterminantException : std::exception {
   const char* what() { return "Matrix must be square to take its determinant"; }
 };
 
+class InvalidInversionException : std::exception {
+ public:
+  const char* what() { return "Matrix must be square to take its inverse"; }
+};
+
 class BadLUException : std::exception {
  public:
   const char* what() {
